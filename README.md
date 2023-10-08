@@ -365,6 +365,8 @@ ________________________________________________________________________________
 100  1711  100  1711    0     0   453k      0 --:--:-- --:--:-- --:--:--  556k
 ```
 
+The test scripts, though similar, contain a command that first deploys the respective network policy, after which the specified tests run.
+
 It can be noted from the first test that there's access to port 5000 of the pod labelled `name=app` in the `prod` namespace from the pod labelled `app=nginx` in the `sre` namespace, and that there's no other form of access.
 
 The second test however shows that there's access to all ports of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `sre` namespace, while there's access only to port 5000 of the pod labelled `name=app` in the `prod` namespace from the pod labelled `app=nginx` in the `accounting` namespace.
