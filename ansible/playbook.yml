@@ -1,0 +1,13 @@
+---
+- name: Playbook
+  hosts: localhost
+  connection: local
+  become: true
+  tasks:
+    - name: Sort /etc/passwd contents.
+      command: bash modify.sh
+      register: output
+
+    - name: Print Output
+      debug:
+        var: output.stdout
