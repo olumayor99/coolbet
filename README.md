@@ -194,6 +194,8 @@ A use case in an organisation is giving the `sre` namespace access to the pods o
 
 I deployed an EKS cluster and installed `Calico CNI` on it using [this script](/network_policy/cluster.sh) while also creating three namespaces (`prod`, `sre`, and `accounting`), then I deployed a multi-container pod (frontend and backend) in the `prod` namespace, and then NGINX pods to both the `sre` and `accounting` namespaces. All the dployments specify just one replica, so each namespace contained just one pod for ease of testing. I wrote network policies similar to the ones in the task by adding a namespace (prod) to let them be deployed to the `prod` namespace. I also wrote scripts to test the access of the pods in the other namespaces to the pod in the `prod` namespace.
 
+Note that you can use any kubernetes cluster for this, you just have to check the [Calico](https://www.tigera.io/project-calico/) website for the appropriate way to deploy and configure the CNI.
+
 [This](/network_policy/net_pol_1.yaml)...
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -368,3 +370,5 @@ It can be noted from the first test that there's access to port 5000 of the pod 
 The second test however shows that there's access to all ports of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `sre` namespace, while there's access only to port 5000 of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `accounting` namespace.
 
 These tests are a manual way to verify that the network policies were properly configured, and they can be executed in CI/CD workflows to test the effectiveness of network policies.
+
+Once the tests are done, you can delete the cluster using [these] steps. If your cluster was not provisioned on AWS with EKSCTL, then you can skip this step and delete the resources provisioned your own way.
