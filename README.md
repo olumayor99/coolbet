@@ -365,9 +365,9 @@ ________________________________________________________________________________
 100  1711  100  1711    0     0   453k      0 --:--:-- --:--:-- --:--:--  556k
 ```
 
-It can be noted from the first test that there's access to port 5000 of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `sre` namespace, and that there's no other form of access.
+It can be noted from the first test that there's access to port 5000 of the pod labelled `name=app` in the `prod` namespace from the pod labelled `app=nginx` in the `sre` namespace, and that there's no other form of access.
 
-The second test however shows that there's access to all ports of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `sre` namespace, while there's access only to port 5000 of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `accounting` namespace.
+The second test however shows that there's access to all ports of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `sre` namespace, while there's access only to port 5000 of the pod labelled `name=app` in the `prod` namespace from the pod labelled `app=nginx` in the `accounting` namespace.
 
 These tests are a manual way to verify that the network policies were properly configured, and they can be executed in CI/CD workflows to test the effectiveness of network policies.
 
