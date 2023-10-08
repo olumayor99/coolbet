@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PROD_POD_IP=$(kubectl get pods -n prod -l name=app -o custom-columns=ip:.status.podIP | grep -v "ip")
+PROD_POD_IP=$(kubectl get pods -n prod -o jsonpath="{.items[*].status.podIP}")
 
 SRE_POD_NAME=$(kubectl get pods -n sre -o=jsonpath='{.items[?(@.metadata.labels.app=="nginx")].metadata.name}')
 

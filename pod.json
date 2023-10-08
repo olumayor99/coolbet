@@ -1,0 +1,222 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "e86f56f51000f066daf3b509381abf63667825cbe7c35563d21c6036247e8b68",
+                    "cni.projectcalico.org/podIP": "172.16.123.4/32",
+                    "cni.projectcalico.org/podIPs": "172.16.123.4/32",
+                    "kubernetes.io/psp": "eks.privileged"
+                },
+                "creationTimestamp": "2023-10-08T15:11:28Z",
+                "generateName": "app-695c4887d6-",
+                "labels": {
+                    "name": "app",
+                    "pod-template-hash": "695c4887d6"
+                },
+                "name": "app-695c4887d6-stsg4",
+                "namespace": "prod",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "app-695c4887d6",
+                        "uid": "8323f44b-5490-428c-be38-2d59477e4365"
+                    }
+                ],
+                "resourceVersion": "7365",
+                "uid": "b3735de6-bc42-4767-8fdc-606402d80a6b"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "olumayor99/aureli-frontend",
+                        "imagePullPolicy": "Always",
+                        "name": "frontend",
+                        "ports": [
+                            {
+                                "containerPort": 3000,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-kk9bc",
+                                "readOnly": true
+                            }
+                        ]
+                    },
+                    {
+                        "image": "olumayor99/aureli-backend",
+                        "imagePullPolicy": "Always",
+                        "name": "backend",
+                        "ports": [
+                            {
+                                "containerPort": 5000,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-kk9bc",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "ip-192-168-60-38.ec2.internal",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-kk9bc",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2023-10-08T15:11:28Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2023-10-08T15:11:31Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2023-10-08T15:11:31Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2023-10-08T15:11:28Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "docker://57d1e245ee760d9629fbc8c1c8dcac27a2224babc6a2fab2f2b4990fa2bdb5af",
+                        "image": "olumayor99/aureli-backend:latest",
+                        "imageID": "docker-pullable://olumayor99/aureli-backend@sha256:7b32eeda26cc31755b1829225dcf38ac5b4facfdd75b646e71c37a360d99bcd8",
+                        "lastState": {},
+                        "name": "backend",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2023-10-08T15:11:31Z"
+                            }
+                        }
+                    },
+                    {
+                        "containerID": "docker://de4a53ca6ebd983077373a1245eed45ba7c6ad31cb94560ac4c093ad95358c8b",
+                        "image": "olumayor99/aureli-frontend:latest",
+                        "imageID": "docker-pullable://olumayor99/aureli-frontend@sha256:e29e7ce8d6a398a07b8abc6ab0e615be88a58f16bb01e3dffd7b839c85263c11",
+                        "lastState": {},
+                        "name": "frontend",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2023-10-08T15:11:30Z"
+                            }
+                        }
+                    }
+                ],
+                "hostIP": "192.168.60.38",
+                "phase": "Running",
+                "podIP": "172.16.123.4",
+                "podIPs": [
+                    {
+                        "ip": "172.16.123.4"
+                    }
+                ],
+                "qosClass": "BestEffort",
+                "startTime": "2023-10-08T15:11:28Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
