@@ -99,15 +99,17 @@ The `Print Output` task was added to the [playbook](/ansible/playbook.yml) just 
 ### 1. Description of Kubernetes Network Policies
 
 Kubernetes network policies are components used for managing the flow of network traffic within a kubernetes cluster.
-They enable you define rules that control pod-to-pod communication, pod communication across different parts of the cluster, and also how pods communicate with external resources.
+They enable you define rules that govern pod-to-pod communication, pod communication across different parts of the cluster, and also how pods communicate with external resources.
 
-They allow you implement isolation and segmentation/microsegmentation where you can configure very fine-grained traffic flow and access policies for pods, and this is very useful in multi-tenant clusters to reduce the blast radius of potential security breaches. For example, if a bad actor or exploit somehow gains access into a pod in a multi-tenant cluster, they won't be able to do much especially when the network policies have been configured with proper RBAC.
+They allow you implement isolation and segmentation/microsegmentation where you can configure very fine-grained traffic flow and access policies for pods, and this is very useful in multi-tenant clusters to reduce the blast radius of potential security breaches. For example, if a bad actor or exploit somehow gains access into a pod in a multi-tenant cluster, they won't be able to do much especially when the network policies have been configured properly.
 
 They enable compliance too by making sure the pods follow specific patterns of communication, e.g. only specific pods can access the database due to the fact that sensitive data might be stored there.
 
-They significantly enhance the security of a cluster when they are configured properly, while also allowing prioritization of critical traffic, while minimizing unnecessary communication, thereby optimizing the cluster.
+They significantly enhance the security of a cluster when they are configured properly, while also allowing prioritization of critical traffic and minimizing unnecessary communication, thereby optimizing the cluster.
 
 They scale dynamically too, enabling newly created pods to automatically inherit the network policies of their respective namespaces.
+
+Network policies are not native to Kubernetes, neither are they automatically available on Kubernetes clusters, they are defined using the NetworkPolicy Custom Resource Definition (CRD) which extends the Kubernetes API, and they only work when a Container Network Interface (CNI) is deployed and configured on the cluster. The CNI is the one that implements the rules on the NetworkPolicy CRD. Examples of CNIs are [Calico](https://www.tigera.io/project-calico/), [Weave Net](https://www.weave.works/docs/net/latest/kubernetes/kube-addon/), and [Cilium](https://cilium.io/).
 
 
 ### 2. Comparison of the given network policies
