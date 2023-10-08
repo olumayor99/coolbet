@@ -190,3 +190,182 @@ A use case in an organisation is giving the `sre` namespace access to the pods o
 5. Ensuring that default policies aren't conflicting with the application requirements because Kubernetes uses the default policy when no explicitly set rules match.
 6. Analysing the performance of the application before and after the network policy is implemented. This lets you know if there are any issues. A network policy shouldn't degrade the performance of an application. Higher latency might be an indication of complex policies, or policy misconfiguration.
 7. Continuous testing should be implemented to test it's effectiveness. CI tools can be used to run tests such as communicating with the pod from a whitelisted pod/namespace/resource, or communicating with it from a non-whitelisted pod/namespace/resource. Penetration testing should also be conducted on the pods for which the policy is defined. It should pass all these tests.
+
+### 4. A test deployment of network policies.
+
+I deployed an EKS cluster and installed `Calico CNI` on it using [this script](/network_policy/cluster.sh) while also creating three namespaces (`prod`, `sre`, and `accounting`), then I deployed a multi-container pod (frontend and backend) in the `prod` namespace, and then NGINX pods to both the `sre` and `accounting` namespaces. All the dployments specify just one replica, so each namespace contained just one pod for ease of testing. I wrote network policies similar to the ones in the task by adding a namespace (prod) to let them be deployed to the `prod` namespace. I also wrote scripts to test the access of the pods in the other namespaces to the pod in the `prod` namespace.
+
+[This](/network_policy/net_pol_1.yaml)...
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-db-backup-network-policy
+  namespace: prod
+spec:
+  ingress:
+  - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: sre
+        podSelector:
+          matchLabels:
+            app: nginx
+    ports:
+      - port: 5000
+        protocol: TCP
+  podSelector:
+    matchLabels:
+      name: app
+  policyTypes:
+  - Ingress
+```
+
+...when tested with [this](/network_policy/test_pol_1.sh) returns...
+```sh
+Olumayowa Taiwo@DESKTOP-FEF0JUT MINGW64 ~/Documents/Projects/coolbet/network_policy (main)
+$ bash test_pol_1.sh
+networkpolicy.networking.k8s.io/allow-db-backup-network-policy created
+----------------------------------------------------------------------------------------
+Attempting to access port 5000 of Pod in Prod namespace with Pod in Accounting Namespace
+________________________________________________________________________________________
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0
+curl: (28) Failed to connect to 172.16.123.4 port 5000 after 10000 ms: Timeout was reached
+command terminated with exit code 28
+----------------------------------------------------------------------------------------
+Attempting to access port 3000 of Pod in Prod namespace with Pod in Accounting Namespace
+________________________________________________________________________________________
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0
+curl: (28) Failed to connect to 172.16.123.4 port 3000 after 10001 ms: Timeout was reached
+command terminated with exit code 28
+---------------------------------------------------------------------------------
+Attempting to access port 5000 of Pod in Prod namespace with Pod in SRE Namespace
+_________________________________________________________________________________
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    61  100    61    0     0  26079      0 --:--:-- --:--:-- --:--:-- 30500
+{"message":"This is a very simple message from the backend"}
+----------------------------------------------------------------------------------
+Attempting to access port 3000 of Pod in Prod namespace with Pod in SRE Namespace
+__________________________________________________________________________________
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0
+curl: (28) Failed to connect to 172.16.123.4 port 3000 after 10001 ms: Timeout was reached
+command terminated with exit code 28
+```
+
+...while [this](/network_policy/net_pol_2.yaml)...
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-db-backup-network-policy
+  namespace: prod
+spec:
+  ingress:
+    - ports:
+      - port: 5000
+        protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: sre
+          podSelector:
+            matchLabels:
+              app: nginx
+  podSelector:
+    matchLabels:
+      name: app
+  policyTypes:
+  - Ingress
+```
+
+...when tested with [this](/network_policy/test_pol_2.sh) returns...
+
+```sh
+Olumayowa Taiwo@DESKTOP-FEF0JUT MINGW64 ~/Documents/Projects/coolbet/network_policy (main)
+$ bash test_pol_2.sh
+networkpolicy.networking.k8s.io/allow-db-backup-network-policy created
+----------------------------------------------------------------------------------------
+Attempting to access port 5000 of Pod in Prod namespace with Pod in Accounting Namespace
+________________________________________________________________________________________
+{"message":"This is a very simple message from the backend"}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    61  100    61    0     0  12305      0 --:--:-- --:--:-- --:--:-- 15250
+----------------------------------------------------------------------------------------
+Attempting to access port 3000 of Pod in Prod namespace with Pod in Accounting Namespace
+________________________________________________________________________________________
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0
+curl: (28) Failed to connect to 172.16.123.4 port 3000 after 10000 ms: Timeout was reached
+command terminated with exit code 28
+---------------------------------------------------------------------------------
+Attempting to access port 5000 of Pod in Prod namespace with Pod in SRE Namespace
+_________________________________________________________________________________
+{"message":"This is a very simple message from the backend"}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    61  100    61    0     0  34059      0 --:--:-- --:--:-- --:--:-- 61000
+----------------------------------------------------------------------------------
+Attempting to access port 3000 of Pod in Prod namespace with Pod in SRE Namespace
+__________________________________________________________________________________
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="/manifest.json" />
+    <!--
+      Notice the use of  in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+  <script defer src="/static/js/bundle.js"></script></head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+100  1711  100  1711    0     0   453k      0 --:--:-- --:--:-- --:--:--  556k
+```
+
+It can be noted from the first test that there's access to port 5000 of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `sre` namespace, and that there's no other form of access.
+
+The second test however shows that there's access to all ports of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `sre` namespace, while there's access only to port 5000 of the pod labelled `name=app` in the prod namespace from the pod labelled `app=nginx` in the `accounting` namespace.
+
+These tests are a manual way to verify that the network policies were properly configured, and they can be executed in CI/CD workflows to test the effectiveness of network policies.
