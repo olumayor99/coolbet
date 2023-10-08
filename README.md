@@ -196,6 +196,8 @@ I deployed an EKS cluster and installed `Calico CNI` on it using [this script](/
 
 Note that you can use any kubernetes cluster for this, you just have to check the [Calico](https://www.tigera.io/project-calico/) website for the appropriate way to deploy and configure the CNI.
 
+Also note that you need to setup [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html) and [EKSCTL](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html) to deploy the cluster to EKS.
+
 [This](/network_policy/net_pol_1.yaml)...
 ```yaml
 apiVersion: networking.k8s.io/v1

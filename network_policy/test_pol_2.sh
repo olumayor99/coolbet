@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-PROD_POD_IP=$(kubectl get pods -n prod -o jsonpath="{.items[*].status.podIP}")
+PROD_POD_IP=$(kubectl get pods -n prod -o jsonpath='{.items[*].status.podIP}')
 
-SRE_POD_NAME=$(kubectl get pods -n sre -o=jsonpath='{.items[?(@.metadata.labels.app=="nginx")].metadata.name}')
+SRE_POD_NAME=$(kubectl get pods -n sre -o=jsonpath='{.items[*].metadata.name}')
 
-ACCOUNT_POD_NAME=$(kubectl get pods -n accounting -o=jsonpath='{.items[?(@.metadata.labels.app=="nginx")].metadata.name}')
+ACCOUNT_POD_NAME=$(kubectl get pods -n accounting -o=jsonpath='{.items[*].metadata.name}')
 
 TIMEOUT=10
 
